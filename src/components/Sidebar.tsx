@@ -1,8 +1,23 @@
+import {
+  AlertCircle,
+  Calendar,
+  ExternalLink,
+  Flame,
+  Layers,
+  MapPin,
+  Palmtree,
+  SlidersHorizontal,
+  Sparkles,
+  TableProperties,
+  X,
+} from 'lucide-react'
 import type { KabupatenProfile, StatsRow } from '../lib/api'
-import { formatDecimal, formatNumber } from '../lib/api'
+import { formatNumber } from '../lib/api'
 import { choroplethLegend, type ChoroplethMode } from '../lib/colors'
 
 interface SidebarProps {
+  isOpen: boolean
+  onClose: () => void
   stats: StatsRow[]
   statsLoading: boolean
   kabupatenLoading: boolean
@@ -27,13 +42,34 @@ interface SidebarProps {
   profileLoading: boolean
   onClearSelection: () => void
   onShowTentang: () => void
+  onOpenModal: () => void
 }
 
-const MODE_LABELS: Array<{ value: ChoroplethMode; label: string }> = [
-  { value: 'sawit', label: 'Sawit rakyat 2024' },
-  { value: 'bpbd', label: 'Terbakar BPBD (s/d 14 Okt 2026)' },
-  { value: 'poligon', label: 'Luas poligon kebakaran (Jan-Jul 2026)' },
-  { value: 'netral', label: 'Netral (batas saja)' },
+const MODE_LABELS: Array<{
+  value: ChoroplethMode
+  label: string
+  desc: string
+}> = [
+  {
+    value: 'sawit',
+    label: 'Sawit Rakyat 2024',
+    desc: 'Disbun Riau, perkebunan rakyat',
+  },
+  {
+    value: 'bpbd',
+    label: 'Terbakar BPBD',
+    desc: 's/d 14 Okt 2026, laporan lapangan',
+  },
+  {
+    value: 'poligon',
+    label: 'Luas Poligon Kebakaran',
+    desc: 'Jan-Jul 2026, Kemenhut',
+  },
+  {
+    value: 'netral',
+    label: 'Netral (Batas Saja)',
+    desc: 'Transparan tanpa pewarnaan data',
+  },
 ]
 
 export default function Sidebar(props: SidebarProps) {
@@ -41,226 +77,331 @@ export default function Sidebar(props: SidebarProps) {
   const profile = props.selectedProfile?.properties
 
   return (
-    <aside className="sidebar">
-      {props.error && (
-        <section className="error-box">
-          <h2>API belum bisa dihubungi</h2>
-          <p>{props.error}</p>
-        </section>
-      )}
+    <>
+      {/* Backdrop overlay saat sidebar terbuka di layar kecil/mobile */}
+      <div
+        className={`sidebar-backdrop ${props.isOpen ? 'active' : ''}`}
+        onClick={props.onClose}
+        aria-hidden="true"
+      />
 
-      <section>
-        <h2>Layer</h2>
-        <label className="check-row">
-          <input
-            type="checkbox"
-            checked={props.showKabupaten}
-            onChange={(e) => props.onShowKabupatenChange(e.target.checked)}
-          />
-          Kabupaten (12){' '}
-          {props.kabupatenLoading && '(memuat...)'}
-        </label>
-        <label className="check-row">
-          <input
-            type="checkbox"
-            checked={props.showHotspot}
-            onChange={(e) => props.onShowHotspotChange(e.target.checked)}
-          />
-          Titik panas{' '}
-          {props.hotspotCount !== null && `(${props.hotspotCount} titik)`}
-        </label>
-        <label className="check-row">
-          <input
-            type="checkbox"
-            checked={props.showKebakaran}
-            onChange={(e) => props.onShowKebakaranChange(e.target.checked)}
-          />
-          Poligon kebakaran (1.814){' '}
-          {props.kebakaranLoading && '(memuat...)'}
-        </label>
-        <p className="hint">
-          Poligon kebakaran dimuat hanya saat layer ini diaktifkan,
-          supaya peta pertama kali terbuka tetap cepat.
-        </p>
-      </section>
-
-      <section>
-        <h2>Warna peta (choropleth)</h2>
-        {MODE_LABELS.map((item) => (
-          <label key={item.value} className="check-row">
-            <input
-              type="radio"
-              name="choropleth-mode"
-              checked={props.mode === item.value}
-              onChange={() => props.onModeChange(item.value)}
-            />
-            {item.label}
-          </label>
-        ))}
-        <div className="legend">
-          {legend.map((item) => (
-            <div key={item.label} className="legend-row">
-              <span
-                className="legend-color"
-                style={{ backgroundColor: item.color }}
-              />
-              {item.label}
+      <aside className={`sidebar-drawer glass-panel ${props.isOpen ? 'open' : ''}`}>
+        {/* Drawer Header */}
+        <div className="sidebar-drawer-header">
+          <div className="drawer-title-wrap">
+            <span className="drawer-icon">
+              <SlidersHorizontal size={18} />
+            </span>
+            <div>
+              <h3>Kontrol & Data Peta</h3>
+              <p>Filter visualisasi spasial Riau</p>
             </div>
-          ))}
-          <div className="legend-row">
-            <span
-              className="legend-color"
-              style={{ backgroundColor: '#cccccc' }}
-            />
-            Tidak ada data
           </div>
-        </div>
-      </section>
-
-      <section>
-        <h2>Filter titik panas</h2>
-        <label className="field-label">
-          Kabupaten
-          <select
-            value={props.kabupatenFilter}
-            onChange={(e) => props.onKabupatenFilterChange(e.target.value)}
+          <button
+            type="button"
+            className="drawer-close-btn"
+            onClick={props.onClose}
+            aria-label="Tutup panel"
           >
-            <option value="">Semua kabupaten</option>
-            {props.stats.map((row) => (
-              <option key={row.kabupaten} value={row.kabupaten}>
-                {row.kabupaten}
-              </option>
-            ))}
-          </select>
-        </label>
-        <div className="date-row">
-          <label className="field-label">
-            Dari
-            <input
-              type="date"
-              value={props.dari}
-              onChange={(e) => props.onDariChange(e.target.value)}
-            />
-          </label>
-          <label className="field-label">
-            Sampai
-            <input
-              type="date"
-              value={props.sampai}
-              onChange={(e) => props.onSampaiChange(e.target.value)}
-            />
-          </label>
-        </div>
-        <p className="hint">
-          Data titik panas di database: 1 Jan - 23 Okt 2026.
-          Kosongkan tanggal untuk semua tanggal.
-        </p>
-      </section>
-
-      {profile && (
-        <section className="profile">
-          <h2>{profile.nama}</h2>
-          <dl>
-            <div>
-              <dt>Sawit rakyat 2024</dt>
-              <dd>{formatNumber(profile.luas_sawit_rakyat_ha)} ha</dd>
-            </div>
-            <div>
-              <dt>Produksi sawit rakyat</dt>
-              <dd>{formatNumber(profile.produksi_ton)} ton</dd>
-            </div>
-            <div>
-              <dt>Petani sawit rakyat</dt>
-              <dd>{formatNumber(profile.petani_kk)} KK</dd>
-            </div>
-            <div>
-              <dt>Terbakar BPBD</dt>
-              <dd>
-                {formatNumber(profile.terbakar_bpbd_ha)} ha
-                <br />
-                <small>{profile.terbakar_bpbd_periode ?? '-'}</small>
-              </dd>
-            </div>
-            <div>
-              <dt>Terbakar SiPongi</dt>
-              <dd>
-                {profile.terbakar_sipongi_ha === null
-                  ? 'Belum ada data per kabupaten di database'
-                  : `${formatNumber(profile.terbakar_sipongi_ha)} ha`}
-                <br />
-                <small>{profile.terbakar_sipongi_periode ?? '-'}</small>
-              </dd>
-            </div>
-            <div>
-              <dt>Jumlah titik panas 2026</dt>
-              <dd>{formatNumber(profile.jumlah_hotspot)}</dd>
-            </div>
-            <div>
-              <dt>Luas poligon kebakaran</dt>
-              <dd>
-                {formatDecimal(profile.luas_poligon_kebakaran_ha)} ha
-                <br />
-                <small>Jan-Jul 2026, hasil potong poligon ke batas kabupaten</small>
-              </dd>
-            </div>
-          </dl>
-          <p className="hint">
-            Tiga angka terbakar di atas beda sumber dan beda periode,
-            jadi jangan dijumlahkan.
-          </p>
-          <button type="button" onClick={props.onClearSelection}>
-            Tampilkan semua kabupaten
+            <X size={18} />
           </button>
-        </section>
-      )}
+        </div>
 
-      {props.profileLoading && <p>Memuat profil kabupaten...</p>}
+        <div className="sidebar-scroll-content">
+          {/* Box Error API jika terjadi gangguan */}
+          {props.error && (
+            <section className="glass-error-box">
+              <div className="error-header">
+                <AlertCircle size={16} />
+                <h4>API Belum Terhubung</h4>
+              </div>
+              <p>{props.error}</p>
+            </section>
+          )}
 
-      <section>
-        <h2>Statistik per kabupaten</h2>
-        {props.statsLoading && <p>Memuat statistik...</p>}
-        {!props.statsLoading && props.stats.length > 0 && (
-          <table className="stats-table">
-            <thead>
-              <tr>
-                <th>Kabupaten</th>
-                <th>Sawit (ha)</th>
-                <th>Terbakar BPBD (ha)</th>
-                <th>Hotspot</th>
-              </tr>
-            </thead>
-            <tbody>
-              {props.stats.map((row) => (
-                <tr
-                  key={row.kabupaten}
-                  className={
-                    row.kabupaten === props.kabupatenFilter
-                      ? 'selected-row'
-                      : undefined
-                  }
-                  onClick={() =>
-                    props.onKabupatenFilterChange(row.kabupaten)
-                  }
+          {/* Quick Selected Profile Banner */}
+          {profile && (
+            <section className="selected-kab-banner glass-subcard">
+              <div className="banner-content">
+                <span className="banner-pin">
+                  <MapPin size={16} />
+                </span>
+                <div>
+                  <div className="banner-title">{profile.nama}</div>
+                  <div className="banner-desc">Wilayah sedang disorot</div>
+                </div>
+              </div>
+              <div className="banner-actions">
+                <button
+                  type="button"
+                  className="glass-pill-btn accent"
+                  onClick={props.onOpenModal}
                 >
-                  <td>{row.kabupaten}</td>
-                  <td>{formatNumber(row.luas_sawit_rakyat_ha)}</td>
-                  <td>{formatNumber(row.terbakar_bpbd_ha)}</td>
-                  <td>{formatNumber(row.jumlah_hotspot)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-        <p className="hint">
-          Klik baris untuk memilih kabupaten itu di peta.
-        </p>
-      </section>
+                  <ExternalLink size={13} />
+                  Buka Modal Profil
+                </button>
+                <button
+                  type="button"
+                  className="glass-pill-btn"
+                  onClick={props.onClearSelection}
+                >
+                  Reset
+                </button>
+              </div>
+            </section>
+          )}
 
-      <section>
-        <button type="button" onClick={props.onShowTentang}>
-          Tentang Data
-        </button>
-      </section>
-    </aside>
+          {/* Seksi Layer Switcher */}
+          <section className="drawer-section">
+            <div className="section-title">
+              <Layers size={16} />
+              <h4>Layer Geospasial</h4>
+            </div>
+
+            <div className="layer-list">
+              <label className="glass-switch-card">
+                <input
+                  type="checkbox"
+                  checked={props.showKabupaten}
+                  onChange={(e) =>
+                    props.onShowKabupatenChange(e.target.checked)
+                  }
+                />
+                <span className="switch-slider" />
+                <div className="switch-text">
+                  <span className="layer-name">Batas 12 Kabupaten / Kota</span>
+                  <span className="layer-sub">
+                    {props.kabupatenLoading
+                      ? 'Sedang memuat data spasial...'
+                      : 'Badan Informasi Geospasial (BIG)'}
+                  </span>
+                </div>
+              </label>
+
+              <label className="glass-switch-card">
+                <input
+                  type="checkbox"
+                  checked={props.showHotspot}
+                  onChange={(e) => props.onShowHotspotChange(e.target.checked)}
+                />
+                <span className="switch-slider" />
+                <div className="switch-text">
+                  <span className="layer-name">
+                    Titik Panas Hotspot{' '}
+                    {props.hotspotCount !== null && (
+                      <span className="badge-count">
+                        {props.hotspotCount} titik
+                      </span>
+                    )}
+                  </span>
+                  <span className="layer-sub">VIIRS NASA FIRMS 2026</span>
+                </div>
+              </label>
+
+              <label className="glass-switch-card">
+                <input
+                  type="checkbox"
+                  checked={props.showKebakaran}
+                  onChange={(e) =>
+                    props.onShowKebakaranChange(e.target.checked)
+                  }
+                />
+                <span className="switch-slider" />
+                <div className="switch-text">
+                  <span className="layer-name">
+                    Poligon Areal Kebakaran (1.814)
+                  </span>
+                  <span className="layer-sub">
+                    {props.kebakaranLoading
+                      ? 'Memuat 1.814 poligon spasial...'
+                      : 'Kemenhut RI Jan-Jul 2026'}
+                  </span>
+                </div>
+              </label>
+            </div>
+          </section>
+
+          {/* Seksi Mode Pewarnaan Choropleth */}
+          <section className="drawer-section">
+            <div className="section-title">
+              <Sparkles size={16} />
+              <h4>Mode Pewarnaan (Choropleth)</h4>
+            </div>
+
+            <div className="mode-options-grid">
+              {MODE_LABELS.map((item) => (
+                <label
+                  key={item.value}
+                  className={`glass-radio-card ${
+                    props.mode === item.value ? 'active' : ''
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    name="choropleth-mode"
+                    checked={props.mode === item.value}
+                    onChange={() => props.onModeChange(item.value)}
+                  />
+                  <div className="radio-body">
+                    <span className="radio-label">{item.label}</span>
+                    <span className="radio-desc">{item.desc}</span>
+                  </div>
+                </label>
+              ))}
+            </div>
+
+            {/* Legenda Warna */}
+            <div className="glass-legend-wrap">
+              <span className="legend-head">Legenda Indikator</span>
+              <div className="legend-items">
+                {legend.map((item) => (
+                  <div key={item.label} className="legend-item-pill">
+                    <span
+                      className="legend-color-box"
+                      style={{ backgroundColor: item.color }}
+                    />
+                    <span className="legend-text">{item.label}</span>
+                  </div>
+                ))}
+                <div className="legend-item-pill">
+                  <span
+                    className="legend-color-box"
+                    style={{ backgroundColor: '#94a3b8' }}
+                  />
+                  <span className="legend-text">Tidak ada data</span>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Seksi Filter Titik Panas Hotspot */}
+          <section className="drawer-section">
+            <div className="section-title">
+              <Flame size={16} />
+              <h4>Filter Titik Panas (Hotspot)</h4>
+            </div>
+
+            <div className="filter-form">
+              <div className="input-field-wrap">
+                <label htmlFor="kabupaten-select">Filter Wilayah</label>
+                <div className="select-container glass-input-box">
+                  <select
+                    id="kabupaten-select"
+                    value={props.kabupatenFilter}
+                    onChange={(e) =>
+                      props.onKabupatenFilterChange(e.target.value)
+                    }
+                  >
+                    <option value="">Semua Kabupaten / Kota</option>
+                    {props.stats.map((row) => (
+                      <option key={row.kabupaten} value={row.kabupaten}>
+                        {row.kabupaten}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="date-filter-grid">
+                <div className="input-field-wrap">
+                  <label htmlFor="dari-date">
+                    <Calendar size={13} /> Rentang Dari
+                  </label>
+                  <input
+                    id="dari-date"
+                    type="date"
+                    className="glass-input-box"
+                    value={props.dari}
+                    onChange={(e) => props.onDariChange(e.target.value)}
+                  />
+                </div>
+                <div className="input-field-wrap">
+                  <label htmlFor="sampai-date">
+                    <Calendar size={13} /> Sampai
+                  </label>
+                  <input
+                    id="sampai-date"
+                    type="date"
+                    className="glass-input-box"
+                    value={props.sampai}
+                    onChange={(e) => props.onSampaiChange(e.target.value)}
+                  />
+                </div>
+              </div>
+              <p className="section-hint">
+                Rentang data satelit di database: 1 Jan - 23 Okt 2026.
+              </p>
+            </div>
+          </section>
+
+          {/* Seksi Tabel Statistik Kabupaten */}
+          <section className="drawer-section">
+            <div className="section-title">
+              <TableProperties size={16} />
+              <h4>Statistik Kabupaten</h4>
+            </div>
+
+            <p className="table-hint">
+              💡 Klik baris tabel untuk menyorot peta & membuka profil modal.
+            </p>
+
+            {props.statsLoading ? (
+              <div className="table-loading">Memuat statistik kabupaten...</div>
+            ) : (
+              <div className="glass-table-container">
+                <table className="glass-stats-table">
+                  <thead>
+                    <tr>
+                      <th>Kabupaten</th>
+                      <th>
+                        <Palmtree size={12} /> Sawit (ha)
+                      </th>
+                      <th>
+                        <Flame size={12} /> Hotspot
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {props.stats.map((row) => (
+                      <tr
+                        key={row.kabupaten}
+                        className={
+                          row.kabupaten === props.kabupatenFilter
+                            ? 'row-selected'
+                            : ''
+                        }
+                        onClick={() => {
+                          props.onKabupatenFilterChange(row.kabupaten)
+                          props.onOpenModal()
+                        }}
+                      >
+                        <td className="font-semibold">{row.kabupaten}</td>
+                        <td>{formatNumber(row.luas_sawit_rakyat_ha)}</td>
+                        <td>
+                          <span className="hotspot-badge">
+                            {formatNumber(row.jumlah_hotspot)}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </section>
+        </div>
+
+        {/* Drawer Footer */}
+        <div className="sidebar-drawer-footer">
+          <button
+            type="button"
+            className="glass-btn btn-secondary w-full"
+            onClick={props.onShowTentang}
+          >
+            Tentang Data & Sumber Resmi
+          </button>
+        </div>
+      </aside>
+    </>
   )
 }
