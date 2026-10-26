@@ -1,8 +1,8 @@
 body {
   margin: 0;
-  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
-  color: #111111;
-  background: #ffffff;
+  font-family: Spectral, serif;
+  color: #f5e6d3;
+  background: #1a0f0a;
 }
 
 button {
