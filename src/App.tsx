@@ -6,7 +6,6 @@ import {
   Sparkles,
 } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import './App.css'
 import KabupatenModal from './components/KabupatenModal'
 import MapView from './components/MapView'
 import Sidebar from './components/Sidebar'
@@ -34,7 +33,7 @@ export default function App() {
   const [statsLoading, setStatsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  const [mode, setMode] = useState<ChoroplethMode>('sawit')
+  const [mode, setMode] = useState<ChoroplethMode>('netral')
   const [kabupatenFilter, setKabupatenFilter] = useState('')
   const [dari, setDari] = useState('2026-01-01')
   const [sampai, setSampai] = useState('2026-10-23')
@@ -184,38 +183,48 @@ export default function App() {
   }
 
   return (
-    <div className="app-viewport">
+    <div className="relative w-screen h-screen overflow-hidden font-sans text-slate-900 bg-slate-900 select-none">
       {/* 1. Header Melayang (Floating Glass Header) */}
-      <header className="floating-header-nav">
+      <header className="absolute top-4 left-4 right-4 z-[1000] flex flex-col md:flex-row justify-between items-start gap-2.5 pointer-events-none">
         {/* Brand Card Melayang di Kiri */}
-        <div className="brand-floating-card glass-panel">
-          <div className="brand-icon-wrapper">
-            <Sparkles size={20} className="brand-sparkle" />
+        <div className="pointer-events-auto flex items-center gap-3 px-4.5 py-2.5 rounded-2xl md:rounded-full bg-white/80 hover:bg-white/90 backdrop-blur-xl border border-white/70 shadow-[0_12px_36px_0_rgba(15,23,42,0.12)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_16px_36px_0_rgba(15,23,42,0.15)]">
+          <div className="flex items-center justify-center w-9 h-9 rounded-full bg-linear-to-br from-sky-600 to-sky-700 text-white shadow-md shadow-sky-600/35 shrink-0">
+            <Sparkles size={20} />
           </div>
-          <div className="brand-text">
-            <h1>Peta Sawit & Kebakaran Riau</h1>
-            <p>Persebaran sawit rakyat 2024 & karhutla 2026 per kabupaten</p>
+          <div>
+            <h1 className="text-[15px] font-bold tracking-tight text-slate-900 leading-tight">
+              Peta Sawit & Kebakaran Riau
+            </h1>
+            <p className="text-[11px] font-medium text-slate-500 leading-tight mt-0.5">
+              Persebaran sawit rakyat 2024 & karhutla 2026 per kabupaten
+            </p>
           </div>
         </div>
 
         {/* Action Controls Melayang di Kanan */}
-        <div className="floating-actions-wrap">
+        <div className="pointer-events-auto flex items-center gap-2.5 self-end md:self-auto">
           <button
             type="button"
-            className={`glass-nav-btn ${isSidebarOpen ? 'active' : ''}`}
+            className={`flex items-center gap-2 px-4.5 py-2.5 rounded-full backdrop-blur-xl border shadow-[0_12px_36px_0_rgba(15,23,42,0.12)] text-[13px] font-semibold cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_16px_36px_0_rgba(15,23,42,0.16)] ${
+              isSidebarOpen
+                ? 'bg-slate-900 text-white border-slate-900'
+                : 'bg-white/80 hover:bg-white/90 text-slate-900 border-white/70'
+            }`}
             onClick={() => setIsSidebarOpen((prev) => !prev)}
             aria-label="Toggle Panel Layer"
           >
             <Layers size={18} />
             <span>Layer & Kontrol</span>
             {hotspotData && (
-              <span className="btn-badge">{hotspotData.features.length}</span>
+              <span className="inline-flex items-center justify-center px-1.5 py-0.5 text-[11px] font-bold rounded-full bg-orange-500 text-white">
+                {hotspotData.features.length}
+              </span>
             )}
           </button>
 
           <button
             type="button"
-            className="glass-nav-btn secondary"
+            className="flex items-center gap-2 px-4.5 py-2.5 rounded-full bg-white/80 hover:bg-white/90 backdrop-blur-xl border border-white/70 shadow-[0_12px_36px_0_rgba(15,23,42,0.12)] text-[13px] font-semibold text-slate-600 hover:text-slate-900 cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_16px_36px_0_rgba(15,23,42,0.16)]"
             onClick={() => setView('tentang')}
             aria-label="Tentang Data"
           >
@@ -226,15 +235,15 @@ export default function App() {
       </header>
 
       {/* 2. Petunjuk Melayang Bawah (Interactive Hint Pill) */}
-      <div className="floating-bottom-hint glass-panel">
-        <MapPin size={15} className="hint-pin-icon" />
+      <div className="hidden md:flex absolute bottom-6 left-1/2 -translate-x-1/2 z-[900] items-center gap-2 px-4.5 py-2 rounded-full bg-white/80 backdrop-blur-xl border border-white/70 shadow-[0_12px_36px_0_rgba(15,23,42,0.12)] text-xs text-slate-800 pointer-events-none animate-[floatSoft_3s_ease-in-out_infinite]">
+        <MapPin size={15} className="text-sky-600" />
         <span>
           Arahkan kursor & <b>klik kabupaten</b> pada peta untuk melihat modal data lengkap.
         </span>
       </div>
 
       {/* 3. Peta Fullscreen */}
-      <main className="map-fullscreen-container">
+      <main className="absolute inset-0 w-full h-full z-1">
         <MapView
           kabupatenData={kabupatenData}
           statsByKabupaten={statsByKabupaten}

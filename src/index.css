@@ -1,10 +1,84 @@
-body {
-  margin: 0;
-  font-family: Roboto, sans-serif;
-  color: #0f0f0f;
-  background: #ffffff;
+@import "tailwindcss";
+
+@layer base {
+  *, ::after, ::before {
+    box-sizing: border-box;
+  }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    color: #0f172a;
+    background-color: #0f172a;
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
 }
 
-button {
-  cursor: pointer;
+/* Custom Keyframe Animations for Glassmorphism & UI */
+@keyframes pulseGreen {
+  0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.6); }
+  70% { box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}
+
+@keyframes floatSoft {
+  0%, 100% { transform: translate(-50%, 0); }
+  50% { transform: translate(-50%, -4px); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleUp {
+  from { opacity: 0; transform: scale(0.94) translateY(12px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* Custom Scrollbar for Drawer & Tables */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.5);
+  border-radius: 9999px;
+}
+
+/* Leaflet Custom Overrides (Required because Leaflet creates HTML outside React DOM) */
+.clickable-kabupaten-path {
+  cursor: pointer !important;
+  transition: all 0.2s ease-out;
+}
+
+.kab-glass-label {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  pointer-events: none !important;
+}
+
+.kab-glass-label::before {
+  display: none !important;
+}
+
+.leaflet-popup-content-wrapper {
+  background: rgba(255, 255, 255, 0.9) !important;
+  backdrop-filter: blur(16px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.9) !important;
+  box-shadow: 0 12px 36px 0 rgba(15, 23, 42, 0.12) !important;
+  border-radius: 14px !important;
+  padding: 4px !important;
+}
+
+.leaflet-popup-tip {
+  background: rgba(255, 255, 255, 0.9) !important;
 }

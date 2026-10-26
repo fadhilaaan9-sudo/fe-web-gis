@@ -1,5 +1,5 @@
 import type { Feature, FeatureCollection } from 'geojson'
-import type { Layer, Path, PathOptions } from 'leaflet'
+import { type Layer, type Path, type PathOptions } from 'leaflet'
 import {
   CircleMarker,
   GeoJSON,
@@ -104,9 +104,8 @@ export default function MapView(props: MapViewProps) {
     const nama = feature.properties?.['nama'] as string | undefined
     if (nama) {
       layer.bindTooltip(
-        `<div class="kab-tooltip-wrap">
-           <div class="kab-title">📍 ${nama}</div>
-           <div class="kab-action-hint">Klik untuk melihat profil</div>
+        `<div class="flex flex-col items-center pointer-events-none select-none">
+           <div class="font-bold text-[13px] text-slate-900 [text-shadow:_0_0_4px_#fff,_0_0_6px_#fff,_0_1px_3px_rgba(0,0,0,0.3)] tracking-tight">${nama}</div>
          </div>`,
         {
           permanent: true,
@@ -156,12 +155,12 @@ export default function MapView(props: MapViewProps) {
     const p = feature.properties ?? {}
     const luas = formatDecimal(p['luas_ha'] as number | null)
     layer.bindPopup(
-      `<div class="glass-popup-content">
-        <h4>Areal Kebakaran</h4>
-        <p><b>Tanggal:</b> ${formatKetDate(p['ket'])}</p>
-        <p><b>Periode:</b> ${p['periode'] ?? '-'}</p>
-        <p><b>Objek:</b> ${p['namobj'] ?? '-'}</p>
-        <p><b>Luas:</b> ${luas} ha</p>
+      `<div class="text-xs text-slate-600 leading-snug">
+        <h4 class="font-bold text-[13px] text-slate-900 pb-1 mb-1.5 border-b border-slate-200">Areal Kebakaran</h4>
+        <p class="my-0.5"><b class="text-slate-900">Tanggal:</b> ${formatKetDate(p['ket'])}</p>
+        <p class="my-0.5"><b class="text-slate-900">Periode:</b> ${p['periode'] ?? '-'}</p>
+        <p class="my-0.5"><b class="text-slate-900">Objek:</b> ${p['namobj'] ?? '-'}</p>
+        <p class="my-0.5"><b class="text-slate-900">Luas:</b> ${luas} ha</p>
       </div>`,
     )
   }
@@ -227,24 +226,29 @@ export default function MapView(props: MapViewProps) {
               }}
             >
               <Popup>
-                <div className="glass-popup-content">
-                  <h4>Titik Panas (Hotspot)</h4>
-                  <p>
-                    <b>Waktu:</b> {String(p['acq_date'] ?? '-')}{' '}
-                    {String(p['acq_time'] ?? '')}
+                <div className="text-xs text-slate-600 leading-snug">
+                  <h4 className="font-bold text-[13px] text-slate-900 pb-1 mb-1.5 border-b border-slate-200">
+                    Titik Panas (Hotspot)
+                  </h4>
+                  <p className="my-0.5">
+                    <b className="text-slate-900">Waktu:</b>{' '}
+                    {String(p['acq_date'] ?? '-')} {String(p['acq_time'] ?? '')}
                   </p>
-                  <p>
-                    <b>Satelit:</b> {String(p['satellite'] ?? '-')}
+                  <p className="my-0.5">
+                    <b className="text-slate-900">Satelit:</b>{' '}
+                    {String(p['satellite'] ?? '-')}
                   </p>
-                  <p>
-                    <b>Tingkat Kepercayaan:</b>{' '}
+                  <p className="my-0.5">
+                    <b className="text-slate-900">Tingkat Kepercayaan:</b>{' '}
                     {confidenceLabel(p['confidence'])}
                   </p>
-                  <p>
-                    <b>FRP:</b> {String(p['frp'] ?? '-')} MW
+                  <p className="my-0.5">
+                    <b className="text-slate-900">FRP:</b>{' '}
+                    {String(p['frp'] ?? '-')} MW
                   </p>
-                  <p>
-                    <b>Siang/Malam:</b> {String(p['daynight'] ?? '-')}
+                  <p className="my-0.5">
+                    <b className="text-slate-900">Siang/Malam:</b>{' '}
+                    {String(p['daynight'] ?? '-')}
                   </p>
                 </div>
               </Popup>

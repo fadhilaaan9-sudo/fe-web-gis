@@ -8,27 +8,38 @@ interface TentangDataProps {
 // berubah, ubah halaman ini juga.
 export default function TentangData(props: TentangDataProps) {
   return (
-    <main className="tentang">
-      <button type="button" onClick={props.onBack}>
+    <main className="max-w-[800px] mx-auto my-10 p-8 bg-white/80 backdrop-blur-xl border border-white/70 shadow-[0_24px_60px_0_rgba(15,23,42,0.15)] rounded-2xl leading-relaxed text-slate-900">
+      <button
+        type="button"
+        className="px-4 py-2 rounded-full bg-slate-900 text-white text-[13px] font-semibold hover:bg-slate-700 hover:-translate-y-0.5 cursor-pointer transition-all duration-200"
+        onClick={props.onBack}
+      >
         Kembali ke peta
       </button>
-      <h1>Tentang Data</h1>
-      <p>
+
+      <h1 className="text-2xl font-extrabold text-slate-900 mt-4 mb-2">
+        Tentang Data
+      </h1>
+      <p className="text-sm text-slate-800 leading-relaxed">
         Peta ini menampilkan persebaran sawit dan lahan terbakar di
         Provinsi Riau, di level kabupaten/kota saja. Tidak ada
         drill-down kecamatan atau desa.
       </p>
 
-      <h2>Batas kabupaten (12)</h2>
-      <p>
+      <h2 className="text-[17px] font-bold text-sky-600 mt-6 mb-2">
+        Batas kabupaten (12)
+      </h2>
+      <p className="text-sm text-slate-800 leading-relaxed">
         Sumber: Badan Informasi Geospasial (BIG), batas wilayah
         kabupaten/kota nasional. Nama kabupaten memakai kolom WADMKK
         apa adanya, tanpa awalan &quot;Kota &quot; (jadi Dumai dan
         Pekanbaru, bukan Kota Dumai atau Kota Pekanbaru).
       </p>
 
-      <h2>Sawit: choropleth, bukan poligon</h2>
-      <p>
+      <h2 className="text-[17px] font-bold text-sky-600 mt-6 mb-2">
+        Sawit: choropleth, bukan poligon
+      </h2>
+      <p className="text-sm text-slate-800 leading-relaxed mb-3">
         Yang ditampilkan sebagai warna peta adalah luas sawit
         rakyat per kabupaten tahun 2024, dari Dinas Perkebunan
         Provinsi Riau, Statistik Perkebunan 2024 (ATAP), Tabel 3D.
@@ -38,7 +49,7 @@ export default function TentangData(props: TentangDataProps) {
         besar tidak dipublikasikan, jadi jangan pernah melabeli
         angka ini &quot;total sawit Riau&quot;.
       </p>
-      <p>
+      <p className="text-sm text-slate-800 leading-relaxed">
         Alasan tidak memakai poligon sawit: tutupan lahan KLHK
         tidak punya kelas khusus sawit. Sawit masuk kelas campuran
         &quot;Perkebunan&quot; (kode 2010), sama jebakannya dengan
@@ -46,8 +57,10 @@ export default function TentangData(props: TentangDataProps) {
         sebagai sawit adalah salah.
       </p>
 
-      <h2>Titik panas: bukan luas terbakar</h2>
-      <p>
+      <h2 className="text-[17px] font-bold text-sky-600 mt-6 mb-2">
+        Titik panas: bukan luas terbakar
+      </h2>
+      <p className="text-sm text-slate-800 leading-relaxed">
         Titik di peta adalah titik panas (hotspot) VIIRS dari NASA
         FIRMS, 1 Januari - 23 Oktober 2026, sudah dipotong tepat
         ke batas Riau. Titik panas BUKAN luas terbakar, dan NASA
@@ -56,8 +69,10 @@ export default function TentangData(props: TentangDataProps) {
         merah = tinggi, oranye = sedang (nominal), kuning = rendah.
       </p>
 
-      <h2>Lahan terbakar: tiga angka, jangan dijumlahkan</h2>
-      <ul>
+      <h2 className="text-[17px] font-bold text-sky-600 mt-6 mb-2">
+        Lahan terbakar: tiga angka, jangan dijumlahkan
+      </h2>
+      <ul className="list-disc pl-5 text-sm text-slate-800 space-y-2 leading-relaxed">
         <li>
           <b>Terbakar BPBD:</b> BPBD Damkar Riau, 1 Januari - 14
           Oktober 2026 (angka berjalan, laporan lapangan). Total
@@ -73,7 +88,10 @@ export default function TentangData(props: TentangDataProps) {
           laporan Manggala Agni. Di database saat ini, angka
           per kabupaten SiPongi BELUM diimport, jadi kolomnya
           kosong. Halaman bukti SiPongi:{' '}
-          <a href="https://sipongi.gakkum.kehutanan.go.id/indikasi-luas-kebakaran">
+          <a
+            href="https://sipongi.gakkum.kehutanan.go.id/indikasi-luas-kebakaran"
+            className="text-sky-600 underline font-medium hover:text-sky-800"
+          >
             sipongi.gakkum.kehutanan.go.id/indikasi-luas-kebakaran
           </a>
           . Halaman itu hanya bukti keberadaan, periode, dan
@@ -91,8 +109,10 @@ export default function TentangData(props: TentangDataProps) {
         </li>
       </ul>
 
-      <h2>Basemap</h2>
-      <p>
+      <h2 className="text-[17px] font-bold text-sky-600 mt-6 mb-2">
+        Basemap
+      </h2>
+      <p className="text-sm text-slate-800 leading-relaxed">
         Peta dasar dari OpenStreetMap. Jalan, sungai, dan nama
         tempat berasal dari basemap itu, bukan dari data proyek
         ini.
