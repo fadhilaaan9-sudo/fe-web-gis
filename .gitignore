@@ -22,3 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Environment (salin .env.example menjadi .env, jangan commit .env)
+.env

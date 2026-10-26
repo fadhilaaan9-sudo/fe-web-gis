@@ -1,75 +1,53 @@
-# React + TypeScript + Vite
+# Peta Sawit dan Kebakaran Riau (Frontend)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Frontend WebGIS untuk Provinsi Riau: peta interaktif persebaran sawit
+rakyat 2024 dan lahan terbakar 2026, per kabupaten/kota.
 
-Currently, two official plugins are available:
+Backend-nya terpisah di repo `api-hono-gis-riau` (Hono + PostGIS).
+Repo ini hanya frontend: React + Vite + Leaflet.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Yang ditampilkan
 
-## React Compiler
+- Basemap OpenStreetMap, di atasnya poligon 12 kabupaten/kota Riau.
+- Choropleth: sawit rakyat 2024, terbakar BPBD (s/d 14 Okt 2026),
+  atau luas poligon kebakaran (Jan-Jul 2026). Ketiga angka itu
+  beda sumber dan beda periode, jadi jangan dijumlahkan.
+- Titik panas VIIRS (NASA FIRMS, Jan-Okt 2026), bisa difilter
+  per kabupaten dan per tanggal. Titik panas BUKAN luas terbakar.
+- Poligon areal kebakaran Kemenhut (Jan-Jul 2026, 1.814 poligon),
+  dimuat hanya saat layer-nya diaktifkan.
+- Klik kabupaten untuk profilnya, klik baris statistik untuk
+  memilih kabupaten di peta.
+- Halaman Tentang Data berisi sumber dan periode setiap dataset
+  secara jujur, termasuk catatan bahwa sawit di sini hanya
+  perkebunan rakyat, dan angka SiPongi per kabupaten belum ada
+  di database.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Menjalankan lokal
 
-## Expanding the ESLint configuration
+Jalankan dulu API-nya (repo `api-hono-gis-riau`):
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
+```sh
+bun run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://npmx.dev/package/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://npmx.dev/package/eslint-plugin-react-dom) for React-specific lint rules:
+API jalan di `http://localhost:3000`.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+Lalu di repo ini:
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```sh
+bun install
+bun run dev
+```
 
+Buka `http://localhost:5173`.
+
+Kalau API tidak di `localhost:3000`, salin `.env.example` menjadi
+`.env` dan isi `VITE_API_URL` dengan alamat API-nya, lalu restart
+server Vite.
+
+## Build
+
+```sh
+bun run build
 ```
