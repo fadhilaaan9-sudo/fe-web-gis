@@ -23,6 +23,7 @@ export default function App() {
   const [view, setView] = useState<'peta' | 'tentang'>('peta')
   const [kabupatenData, setKabupatenData] =
     useState<FeatureCollection | null>(null)
+  const [kabupatenLoading, setKabupatenLoading] = useState(true)
   const [stats, setStats] = useState<StatsRow[]>([])
   const [statsLoading, setStatsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -46,19 +47,28 @@ export default function App() {
     useState<KabupatenProfile | null>(null)
   const [profileLoading, setProfileLoading] = useState(false)
 
-  // Muat peta kabupaten dan statistik sekali saat aplikasi dibuka.
+  // Muat kabupaten dan statistik secara TERPISAH, bukan Promise.all.
+  // Alasannya: kalau satu gagal atau lambat, yang lain tetap tampil.
+  // Sebelumnya, kalau /api/stats lambat/gagal, poligon kabupaten
+  // ikut tidak muncul sama sekali, padahal datanya sudah ada.
   useEffect(() => {
     let cancelled = false
-    async function loadBase() {
+    async function loadKabupaten() {
       try {
-        const [kabupaten, statsRows] = await Promise.all([
-          fetchKabupaten(),
-          fetchStats(),
-        ])
-        if (cancelled) return
-        setKabupatenData(kabupaten)
-        setStats(statsRows)
-        setError(null)
+        const kabupaten = await fetchKabupaten()
+        if (!cancelled) setKabupatenData(kabupaten)
+      } catch (err) {
+        if (!cancelled) {
+          setError(err instanceof Error ? err.message : String(err))
+        }
+      } finally {
+        if (!cancelled) setKabupatenLoading(false)
+      }
+    }
+    async function loadStats() {
+      try {
+        const statsRows = await fetchStats()
+        if (!cancelled) setStats(statsRows)
       } catch (err) {
         if (!cancelled) {
           setError(err instanceof Error ? err.message : String(err))
@@ -67,7 +77,8 @@ export default function App() {
         if (!cancelled) setStatsLoading(false)
       }
     }
-    void loadBase()
+    void loadKabupaten()
+    void loadStats()
     return () => {
       cancelled = true
     }
@@ -202,6 +213,7 @@ export default function App() {
         <Sidebar
           stats={stats}
           statsLoading={statsLoading}
+          kabupatenLoading={kabupatenLoading}
           error={error}
           mode={mode}
           onModeChange={setMode}

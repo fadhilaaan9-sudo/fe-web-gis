@@ -5,6 +5,7 @@ import { choroplethLegend, type ChoroplethMode } from '../lib/colors'
 interface SidebarProps {
   stats: StatsRow[]
   statsLoading: boolean
+  kabupatenLoading: boolean
   error: string | null
   mode: ChoroplethMode
   onModeChange: (mode: ChoroplethMode) => void
@@ -41,6 +42,13 @@ export default function Sidebar(props: SidebarProps) {
 
   return (
     <aside className="sidebar">
+      {props.error && (
+        <section className="error-box">
+          <h2>API belum bisa dihubungi</h2>
+          <p>{props.error}</p>
+        </section>
+      )}
+
       <section>
         <h2>Layer</h2>
         <label className="check-row">
@@ -49,7 +57,8 @@ export default function Sidebar(props: SidebarProps) {
             checked={props.showKabupaten}
             onChange={(e) => props.onShowKabupatenChange(e.target.checked)}
           />
-          Kabupaten (12)
+          Kabupaten (12){' '}
+          {props.kabupatenLoading && '(memuat...)'}
         </label>
         <label className="check-row">
           <input
@@ -147,13 +156,6 @@ export default function Sidebar(props: SidebarProps) {
           Kosongkan tanggal untuk semua tanggal.
         </p>
       </section>
-
-      {props.error && (
-        <section className="error-box">
-          <h2>API belum bisa dihubungi</h2>
-          <p>{props.error}</p>
-        </section>
-      )}
 
       {profile && (
         <section className="profile">
