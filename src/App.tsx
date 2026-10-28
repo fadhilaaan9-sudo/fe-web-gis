@@ -5,11 +5,13 @@ import {
   MapPin,
   Sparkles,
 } from 'lucide-react'
-import { useCallback, useEffect, useMemo, useState } from 'react'
-import KabupatenModal from './components/KabupatenModal'
+import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from 'react'
 import MapView from './components/MapView'
-import Sidebar from './components/Sidebar'
-import TentangData from './components/TentangData'
+// Sidebar, modal, dan Tentang Data dimuat malas supaya bundle pertama
+// hanya berisi peta; ketiganya baru diunduh saat dibutuhkan.
+const KabupatenModal = lazy(() => import('./components/KabupatenModal'))
+const Sidebar = lazy(() => import('./components/Sidebar'))
+const TentangData = lazy(() => import('./components/TentangData'))
 import {
   fetchHotspots,
   fetchKabupaten,
@@ -179,7 +181,11 @@ export default function App() {
   }, [stats])
 
   if (view === 'tentang') {
-    return <TentangData onBack={() => setView('peta')} />
+    return (
+      <Suspense fallback={null}>
+        <TentangData onBack={() => setView('peta')} />
+      </Suspense>
+    )
   }
 
   return (
@@ -261,6 +267,7 @@ export default function App() {
       </main>
 
       {/* 4. Sidebar Collapsible Drawer Melayang di Kanan */}
+      <Suspense fallback={null}>
       <Sidebar
         isOpen={isSidebarOpen}
         onClose={() => setIsSidebarOpen(false)}
@@ -290,8 +297,10 @@ export default function App() {
         onShowTentang={() => setView('tentang')}
         onOpenModal={() => setIsModalOpen(true)}
       />
+      </Suspense>
 
       {/* 5. Pop-up Modal Box Profil Kabupaten */}
+      <Suspense fallback={null}>
       <KabupatenModal
         isOpen={isModalOpen}
         profile={selectedProfile}
@@ -302,6 +311,7 @@ export default function App() {
           setIsSidebarOpen(true)
         }}
       />
+      </Suspense>
     </div>
   )
 }
