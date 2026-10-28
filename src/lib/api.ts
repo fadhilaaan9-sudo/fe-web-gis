@@ -25,11 +25,12 @@ export interface StatsRow {
 }
 
 // Profil satu kabupaten, sesuai /api/kabupaten/:nama.
-// Bentuknya satu Feature GeoJSON, propertinya sama dengan StatsRow
-// ditambah id dan nama.
+// Bentuknya satu Feature GeoJSON tanpa geometri (modal hanya memakai
+// angka di properties; poligonnya sudah ada di peta), propertinya sama
+// dengan StatsRow ditambah id dan nama.
 export interface KabupatenProfile {
   type: 'Feature'
-  geometry: unknown
+  geometry?: unknown
   properties: {
     id: number
     nama: string
