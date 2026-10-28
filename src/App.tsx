@@ -4,6 +4,7 @@ import {
   Layers,
   MapPin,
   Sparkles,
+  X,
 } from 'lucide-react'
 import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from 'react'
 import MapView from './components/MapView'
@@ -180,6 +181,11 @@ export default function App() {
     return map
   }, [stats])
 
+  // Nama kabupaten terpilih untuk chip di header. Pakai nilai filter
+  // karena filter diset langsung saat klik, sedangkan profil dimuat belakangan.
+  const selectedKabupatenName =
+    kabupatenFilter === '' ? null : kabupatenFilter
+
   if (view === 'tentang') {
     return (
       <Suspense fallback={null}>
@@ -208,7 +214,38 @@ export default function App() {
         </div>
 
         {/* Action Controls Melayang di Kanan */}
-        <div className="pointer-events-auto flex items-center gap-2.5 self-end md:self-auto">
+        <div className="pointer-events-auto flex flex-wrap items-center justify-end gap-2.5 self-end md:self-auto">
+          {/* Chip kabupaten terpilih: di luar sidebar, di kiri tombol Layer & Kontrol. */}
+          {selectedKabupatenName !== null && (
+            <div className="flex items-center gap-1.5 pl-2.5 pr-1.5 py-1.5 rounded-full bg-white/80 backdrop-blur-xl border border-sky-200/80 shadow-[0_12px_36px_0_rgba(15,23,42,0.12)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_16px_36px_0_rgba(15,23,42,0.16)]">
+              <button
+                type="button"
+                onClick={() => setIsModalOpen(true)}
+                aria-label={`Buka profil ${selectedKabupatenName}`}
+                className="flex items-center gap-2 cursor-pointer"
+              >
+                <span className="flex items-center justify-center w-7 h-7 rounded-full bg-linear-to-br from-sky-600 to-sky-700 text-white shadow-md shadow-sky-600/35 shrink-0">
+                  <MapPin size={15} />
+                </span>
+                <span className="text-left leading-tight">
+                  <span className="block text-[13px] font-bold text-slate-900 leading-tight truncate max-w-[130px] sm:max-w-none">
+                    {selectedKabupatenName}
+                  </span>
+                  <span className="hidden sm:block text-[11px] font-medium text-slate-500 leading-tight mt-0.5">
+                    Kabupaten terpilih · klik untuk profil
+                  </span>
+                </span>
+              </button>
+              <button
+                type="button"
+                onClick={clearSelection}
+                aria-label="Hapus pilihan kabupaten"
+                className="flex items-center justify-center w-7 h-7 shrink-0 rounded-full text-slate-500 hover:text-slate-900 hover:bg-slate-900/5 cursor-pointer transition-colors duration-150"
+              >
+                <X size={15} />
+              </button>
+            </div>
+          )}
           <button
             type="button"
             className={`flex items-center gap-2 px-4.5 py-2.5 rounded-full backdrop-blur-xl border shadow-[0_12px_36px_0_rgba(15,23,42,0.12)] text-[13px] font-semibold cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_16px_36px_0_rgba(15,23,42,0.16)] ${
@@ -291,9 +328,6 @@ export default function App() {
         onShowKebakaranChange={setShowKebakaran}
         kebakaranLoading={kebakaranLoading}
         hotspotCount={hotspotData ? hotspotData.features.length : null}
-        selectedProfile={selectedProfile}
-        profileLoading={profileLoading}
-        onClearSelection={clearSelection}
         onShowTentang={() => setView('tentang')}
         onOpenModal={() => setIsModalOpen(true)}
       />

@@ -1,17 +1,15 @@
 import {
   AlertCircle,
   Calendar,
-  ExternalLink,
   Flame,
   Layers,
-  MapPin,
   Palmtree,
   SlidersHorizontal,
   Sparkles,
   TableProperties,
   X,
 } from 'lucide-react'
-import type { KabupatenProfile, StatsRow } from '../lib/api'
+import type { StatsRow } from '../lib/api'
 import { formatNumber } from '../lib/api'
 import { choroplethLegend, type ChoroplethMode } from '../lib/colors'
 
@@ -38,9 +36,6 @@ interface SidebarProps {
   onShowKebakaranChange: (value: boolean) => void
   kebakaranLoading: boolean
   hotspotCount: number | null
-  selectedProfile: KabupatenProfile | null
-  profileLoading: boolean
-  onClearSelection: () => void
   onShowTentang: () => void
   onOpenModal: () => void
 }
@@ -74,7 +69,6 @@ const MODE_LABELS: Array<{
 
 export default function Sidebar(props: SidebarProps) {
   const legend = choroplethLegend(props.mode)
-  const profile = props.selectedProfile?.properties
 
   return (
     <>
@@ -129,41 +123,7 @@ export default function Sidebar(props: SidebarProps) {
             </section>
           )}
 
-          {/* Quick Selected Profile Banner */}
-          {profile && (
-            <section className="flex flex-col gap-2.5 p-3.5 rounded-xl bg-linear-to-br from-sky-500/10 to-white/80 border border-sky-500/25 backdrop-blur-md">
-              <div className="flex items-center gap-2.5">
-                <span className="text-sky-600">
-                  <MapPin size={16} />
-                </span>
-                <div>
-                  <div className="text-[15px] font-bold text-slate-900 leading-tight">
-                    {profile.nama}
-                  </div>
-                  <div className="text-[11px] text-slate-500">
-                    Wilayah sedang disorot
-                  </div>
-                </div>
-              </div>
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-full bg-sky-600 text-white hover:bg-sky-700 cursor-pointer transition-all duration-150"
-                  onClick={props.onOpenModal}
-                >
-                  <ExternalLink size={13} />
-                  Buka Modal Profil
-                </button>
-                <button
-                  type="button"
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-full border border-slate-200 bg-white text-slate-800 hover:bg-slate-50 cursor-pointer transition-all duration-150"
-                  onClick={props.onClearSelection}
-                >
-                  Reset
-                </button>
-              </div>
-            </section>
-          )}
+
 
           {/* Seksi Layer Switcher */}
           <section className="flex flex-col gap-3">
