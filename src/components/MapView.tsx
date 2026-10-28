@@ -1,5 +1,5 @@
 import type { Feature, FeatureCollection } from 'geojson'
-import { type Layer, type Path, type PathOptions } from 'leaflet'
+import { latLng, type Layer, type Path, type PathOptions } from 'leaflet'
 import {
   CircleMarker,
   GeoJSON,
@@ -33,6 +33,34 @@ interface MapViewProps {
 // Pusat peta Riau: sekitar Pekanbaru, zoom 7 mencakup
 // seluruh provinsi (99-104 BT, -1,5 sampai 2,9 LU).
 const RIAU_CENTER: [number, number] = [0.7, 101.9]
+
+// Titik tengah visual daratan (visual center) untuk 12 kabupaten/kota di Provinsi Riau.
+// Koordinat ini memastikan posisi label teks tepat berada di tengah daratan utama masing-masing,
+// dan tidak bergeser ke laut/selat atau menumpuk di perbatasan kabupaten lain akibat
+// perhitungan bounding box bawaan Leaflet pada poligon tidak beraturan / kepulauan.
+const KABUPATEN_VISUAL_CENTERS: Record<string, [number, number]> = {
+  'Kampar': [0.30, 101.08], // Daratan barat Kampar (Bangkinang), rapi terpisah dari Pekanbaru
+  'Pekanbaru': [0.53, 101.44], // Kota Pekanbaru
+  'Siak': [0.82, 101.90], // Tengah wilayah Siak Sri Indrapura
+  'Pelalawan': [0.25, 102.05], // Tengah daratan Pelalawan (Pangkalan Kerinci)
+  'Bengkalis': [1.35, 101.45], // Daratan utama Bengkalis (Duri / Mandau)
+  'Dumai': [1.67, 101.44], // Kota Dumai
+  'Rokan Hilir': [1.95, 100.80], // Tengah Rokan Hilir (Bagan Sinembah / Kubu)
+  'Rokan Hulu': [0.88, 100.52], // Tengah Rokan Hulu (Pasir Pengaraian)
+  'Kuantan Singingi': [-0.50, 101.42], // Tengah Kuansing (Teluk Kuantan)
+  'Indragiri Hulu': [-0.55, 102.25], // Tengah Inhu (Rengat / Seberida)
+  'Indragiri Hilir': [-0.38, 103.08], // Tengah daratan Inhil (Tembilahan)
+  'Kepulauan Meranti': [0.98, 102.72], // Pulau Tebing Tinggi (Selatpanjang)
+}
+
+function getVisualCenter(nama: string | undefined): [number, number] | null {
+  if (!nama) return null
+  const clean = nama.trim().toLowerCase()
+  for (const [key, coords] of Object.entries(KABUPATEN_VISUAL_CENTERS)) {
+    if (key.toLowerCase() === clean) return coords
+  }
+  return null
+}
 
 // Gaya satu poligon kabupaten.
 function kabupatenStyle(
@@ -103,10 +131,16 @@ export default function MapView(props: MapViewProps) {
   const onEachKabupaten = (feature: Feature, layer: Layer) => {
     const nama = feature.properties?.['nama'] as string | undefined
     if (nama) {
+      const visualCenter = getVisualCenter(nama)
+      if (visualCenter) {
+        ;(layer as { getCenter?: () => unknown }).getCenter = () =>
+          latLng(visualCenter[0], visualCenter[1])
+      }
+
       layer.bindTooltip(
-        `<div class="flex flex-col items-center pointer-events-none select-none">
-           <div class="font-bold text-[13px] text-slate-900 [text-shadow:_0_0_4px_#fff,_0_0_6px_#fff,_0_1px_3px_rgba(0,0,0,0.3)] tracking-tight">${nama}</div>
-         </div>`,
+        `<span class="font-bold text-[12px] md:text-[13px] text-slate-900 tracking-tight select-none pointer-events-none drop-shadow-[0_0_3px_#fff]">
+           ${nama}
+         </span>`,
         {
           permanent: true,
           direction: 'center',
@@ -165,10 +199,13 @@ export default function MapView(props: MapViewProps) {
     )
   }
 
+  // Hotspot dirender di canvas, bukan ribuan elemen SVG, supaya peta
+  // tidak lag saat digeser atau di-zoom.
   return (
     <MapContainer
       center={RIAU_CENTER}
       zoom={7}
+      preferCanvas
       scrollWheelZoom
       zoomControl={false}
       style={{ height: '100%', width: '100%' }}
