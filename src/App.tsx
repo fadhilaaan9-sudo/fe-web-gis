@@ -3,7 +3,6 @@ import {
   Info,
   Layers,
   MapPin,
-  Sparkles,
   X,
 } from 'lucide-react'
 import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from 'react'
@@ -200,9 +199,13 @@ export default function App() {
       <header className="absolute top-4 left-4 right-4 z-[1000] flex flex-col md:flex-row justify-between items-start gap-2.5 pointer-events-none">
         {/* Brand Card Melayang di Kiri */}
         <div className="pointer-events-auto flex items-center gap-3 px-4.5 py-2.5 rounded-2xl md:rounded-full bg-white/80 hover:bg-white/90 backdrop-blur-xl border border-white/70 shadow-[0_12px_36px_0_rgba(15,23,42,0.12)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_16px_36px_0_rgba(15,23,42,0.15)]">
-          <div className="flex items-center justify-center w-9 h-9 rounded-full bg-linear-to-br from-sky-600 to-sky-700 text-white shadow-md shadow-sky-600/35 shrink-0">
-            <Sparkles size={20} />
-          </div>
+          {/* Ikon pin yang sama dengan favicon. */}
+          <img
+            src="/favicon.svg"
+            alt=""
+            aria-hidden="true"
+            className="h-9 w-9 shrink-0 drop-shadow-sm"
+          />
           <div>
             <h1 className="text-[15px] font-bold tracking-tight text-slate-900 leading-tight">
               Peta Sawit & Kebakaran Riau
