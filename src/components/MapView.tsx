@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import type { Feature, FeatureCollection } from 'geojson'
 import { latLng, type Layer, type Path, type PathOptions } from 'leaflet'
 import {
@@ -110,7 +111,7 @@ function formatKetDate(ket: unknown): string {
   return `${day} ${months[month - 1] ?? month} ${year}`
 }
 
-export default function MapView(props: MapViewProps) {
+function MapView(props: MapViewProps) {
   const {
     kabupatenData,
     statsByKabupaten,
@@ -299,3 +300,9 @@ export default function MapView(props: MapViewProps) {
     </MapContainer>
   )
 }
+
+// Dibungkus memo supaya peta tidak dirender ulang saat App berubah
+// karena state yang tidak berhubungan dengan peta (panel AI dibuka,
+// sidebar dibuka, modal dibuka). Marker hotspot 6.484 titik hanya
+// dibuat ulang kalau hotspotData-nya sendiri berubah.
+export default memo(MapView)
