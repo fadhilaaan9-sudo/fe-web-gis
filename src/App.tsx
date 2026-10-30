@@ -12,6 +12,7 @@ import MapView from './components/MapView'
 const KabupatenModal = lazy(() => import('./components/KabupatenModal'))
 const Sidebar = lazy(() => import('./components/Sidebar'))
 const TentangData = lazy(() => import('./components/TentangData'))
+const AiChatPanel = lazy(() => import('./components/AiChatPanel'))
 import {
   fetchHotspots,
   fetchKabupaten,
@@ -27,6 +28,7 @@ export default function App() {
   const [view, setView] = useState<'peta' | 'tentang'>('peta')
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isAiOpen, setIsAiOpen] = useState(false)
 
   const [kabupatenData, setKabupatenData] =
     useState<FeatureCollection | null>(null)
@@ -270,6 +272,26 @@ export default function App() {
 
           <button
             type="button"
+            className={`flex items-center gap-2 px-4.5 py-2.5 rounded-full backdrop-blur-xl border shadow-[0_12px_36px_0_rgba(15,23,42,0.12)] text-[13px] font-semibold cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_16px_36px_0_rgba(15,23,42,0.16)] ${
+              isAiOpen
+                ? 'bg-slate-900 text-white border-slate-900'
+                : 'bg-white/80 hover:bg-white/90 text-slate-900 border-white/70'
+            }`}
+            onClick={() => setIsAiOpen((prev) => !prev)}
+            aria-label="Toggle Panel Tanya AI"
+          >
+            {/* Logo resmi pin belah daun/api, sama dengan favicon dan brand header. */}
+            <img
+              src="/favicon.svg"
+              alt=""
+              aria-hidden="true"
+              className="h-[18px] w-[18px] drop-shadow-sm"
+            />
+            <span>Tanya AI</span>
+          </button>
+
+          <button
+            type="button"
             className="flex items-center gap-2 px-4.5 py-2.5 rounded-full bg-white/80 hover:bg-white/90 backdrop-blur-xl border border-white/70 shadow-[0_12px_36px_0_rgba(15,23,42,0.12)] text-[13px] font-semibold text-slate-600 hover:text-slate-900 cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_16px_36px_0_rgba(15,23,42,0.16)]"
             onClick={() => setView('tentang')}
             aria-label="Tentang Data"
@@ -334,6 +356,15 @@ export default function App() {
         onShowTentang={() => setView('tentang')}
         onOpenModal={() => setIsModalOpen(true)}
       />
+      </Suspense>
+
+      {/* Panel Chat AI (streaming): tampil di atas peta, di kanan bawah. */}
+      <Suspense fallback={null}>
+        <AiChatPanel
+          isOpen={isAiOpen}
+          onClose={() => setIsAiOpen(false)}
+          onHighlight={handleKabupatenFilterChange}
+        />
       </Suspense>
 
       {/* 5. Pop-up Modal Box Profil Kabupaten */}
