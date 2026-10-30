@@ -25,9 +25,12 @@
   100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
 }
 
+/* Keyframes ini memakai properti translate, bukan transform: di Tailwind v4
+   class -translate-x-1/2 sudah memakai translate, jadi transform di
+   keyframes akan menambah geseran kedua dan pill bergeser ke kiri. */
 @keyframes floatSoft {
-  0%, 100% { transform: translate(-50%, 0); }
-  50% { transform: translate(-50%, -4px); }
+  0%, 100% { translate: -50% 0; }
+  50% { translate: -50% -4px; }
 }
 
 @keyframes fadeIn {
